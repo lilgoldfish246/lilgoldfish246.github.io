@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puzzle Game</title>
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .container {
+        text-align: center;
+    }
+
+    .card {
+        width: 200px;
+        height: 300px;
+        background-color: MidnightBlue;
+        display: inline-block;
+        margin-right: 20px;
+        text-align: center;
+        line-height: 150px;
+        font-size: 10px;
+    }
+
+    form {
+        margin-top: 20px;
+    }
+</style>
+</head>
+<body>
+    <h1 align="center">Welcome to my card puzzle！<br>
+    游戏规则介绍<br>
+    你面前有三张反面朝上的扑克牌，它们上面的花色和数字是随机的<br>
+    第一张牌：请你猜它的花色是红色还是黑色<br>
+    第二张牌：请你猜它的点数是几，猜错系统会提示你偏大或偏小<br>
+    第三张牌：请你猜它点数的奇偶性<br>
+    ps:（1）这是一个经典的酒桌游戏，一般来说你只有三次机会作答<br>
+    本游戏没有限定答题次数，如果你想的话可以挑战自己<br>
+    （2）为体现扑克牌属性的随机性，扑克牌上的黑色文本就是其属性<br>
+    刷新页面可以注意到属性的随机变化，不过我故意把字弄得很小</h1>
+<div class="container">
+    <div class="card" id="card1">???</div>
+    <div class="card" id="card2">???</div>
+    <div class="card" id="card3">???</div>
+    <form id="form">
+        <input type="text" id="input1" placeholder="Red or Black">
+        <br><br>
+        <input type="number" id="input2" placeholder="Number (1-13)" min="1" max="13">
+        <br><br>
+        <input type="text" id="input3" placeholder="Odd or Even">
+        <br><br>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<script>
+    const suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs'];
+    const cards = [];
+
+    for (let i = 0; i < 3; i++) {
+        const card = { suit: suits[Math.floor(Math.random() * suits.length)], value: Math.floor(Math.random() * 13) + 1 };
+        cards.push(card);
+    }
+
+    const input1 = document.getElementById('input1');
+    const input2 = document.getElementById('input2');
+    const input3 = document.getElementById('input3');
+    const form = document.getElementById('form');
+    let currentIndex = 0;
+
+    function updateCardDisplay() {
+        for (let i = 0; i < cards.length; i++) {
+            document.getElementById(`card${i + 1}`).textContent = `${cards[i].suit} ${cards[i].value}`;
+        }
+    }
+
+    function checkColor() {
+        const correctColor = cards[currentIndex].suit === 'Hearts' || cards[currentIndex].suit === 'Diamonds' ? 'Red' : 'Black';
+        return input1.value.toLowerCase() === correctColor.toLowerCase();
+    }
+
+    function checkValue() {
+        const correctValue = cards[currentIndex].value;
+        const guessValue = parseInt(input2.value);
+        if (guessValue === correctValue) {
+            return "Correct";
+        } else if (guessValue < correctValue) {
+            return "Greater";
+        } else {
+            return "Smaller";
+        }
+    }
+
+    function checkOddEven() {
+        const isOdd = cards[currentIndex].value % 2 !== 0;
+        const guessOddEven = input3.value.toLowerCase();
+        return (isOdd && guessOddEven === 'odd') || (!isOdd && guessOddEven === 'even');
+    }
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        if (currentIndex === 0) {
+            if (!checkColor()) {
+                alert('Incorrect color!');
+                return;
+            } else {
+                alert(`Correct color! The first card is ${cards[currentIndex].suit} ${cards[currentIndex].value}. Move to the next puzzle.`);
+            }
+        } else if (currentIndex === 1) {
+            const result = checkValue();
+            if (result !== "Correct") {
+                alert(`Incorrect value! Hint: ${result}`);
+                return;
+            } else {
+                alert(`Correct value! The second card is ${cards[currentIndex].suit} ${cards[currentIndex].value}. Move to the next puzzle.`);
+            }
+        } else if (currentIndex === 2) {
+            if (!checkOddEven()) {
+                alert('Incorrect odd/even guess!');
+                return;
+            } else {
+                alert(`Correct odd/even guess! The third card is ${cards[currentIndex].suit} ${cards[currentIndex].value}. Congratulations, you solved all puzzles!`);
+            }
+        }
+
+        currentIndex++;
+        if (currentIndex < cards.length) {
+            updateCardDisplay();
+            clearInputs();
+        }
+    });
+
+    function clearInputs() {
+        input1.value = '';
+        input2.value = '';
+        input3.value = '';
+    }
+
+    updateCardDisplay();
+</script>
+</body>
+</html>
